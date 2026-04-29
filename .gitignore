@@ -1,0 +1,6 @@
+Backend/.env
+Backend/media_tracker.db
+Backend/__pycache__/
+
+Frontend/node_modules/
+Frontend/.next/
