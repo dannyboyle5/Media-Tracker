@@ -220,7 +220,7 @@ def _insert(table, data):
     conn.execute("INSERT INTO ActivityLog (action_type, category, title) VALUES (?, ?, ?)", ("Added", cat_name, data.get("title")))
     conn.commit(); conn.close()
 
-@app.route("/api/movies", methods=["POST"])
+@app.route("/api/movies", methods=["GET", "POST"])
 def add_movie():
     data = dict(request.json)
     if not data.get("is_manual"):
@@ -247,7 +247,7 @@ def add_movie():
     data.pop("tmdb_id", None) 
     _insert("Staging_Movies", data); return jsonify({"success": True})
 
-@app.route("/api/shows", methods=["POST"])
+@app.route("/api/shows", methods=["GET", "POST"])
 def add_show():
     data = dict(request.json)
     if not data.get("is_manual"):
@@ -286,7 +286,7 @@ def add_show():
     data.pop("tmdb_id", None) 
     _insert("Staging_Shows", data); return jsonify({"success": True})
 
-@app.route("/api/albums", methods=["POST"])
+@app.route("/api/albums", methods=["GET", "POST"])
 def add_album():
     data = dict(request.json)
     raw_title = data.get("title","")
@@ -325,7 +325,7 @@ def add_album():
     _insert("Staging_Albums", data_to_insert)
     return jsonify({"success": True})
 
-@app.route("/api/books", methods=["POST"])
+@app.route("/api/books", methods=["GET", "POST"])
 def add_book():
     data = dict(request.json)
     if not data.get("is_manual"):
@@ -375,19 +375,19 @@ def _step_progress(table, item_id, delta):
 
     conn.commit(); conn.close(); return new_ep
 
-@app.route("/api/<category>/<int:item_id>/increment", methods=["POST"])
+@app.route("/api/<category>/<int:item_id>/increment", methods=["GET", "POST"])
 def increment_progress(category, item_id):
     amount = 1
     if request.is_json and request.json.get("amount"): amount = _to_int(request.json.get("amount", 1))
     return jsonify({"success": True, "new_count": _step_progress(TABLE_MAP.get(category), item_id, amount)})
 
-@app.route("/api/<category>/<int:item_id>/decrement", methods=["POST"])
+@app.route("/api/<category>/<int:item_id>/decrement", methods=["GET", "POST"])
 def decrement_progress(category, item_id):
     amount = -1
     if request.is_json and request.json.get("amount"): amount = -abs(_to_int(request.json.get("amount", 1)))
     return jsonify({"success": True, "new_count": _step_progress(TABLE_MAP.get(category), item_id, amount)})
 
-@app.route("/api/<category>/<int:item_id>/status", methods=["POST"])
+@app.route("/api/<category>/<int:item_id>/status", methods=["GET", "POST"])
 def update_status(category, item_id):
     new_status = request.json.get("status", "Planning"); table = TABLE_MAP.get(category)
     if not table: return jsonify({"error": "Invalid category"}), 400
@@ -426,7 +426,7 @@ def update_status(category, item_id):
     if category in ("shows", "books"): sync_historical_stats()
     return jsonify({"success": True})
 
-@app.route("/api/<category>/<int:item_id>/rating", methods=["POST"])
+@app.route("/api/<category>/<int:item_id>/rating", methods=["GET", "POST"])
 def update_rating(category, item_id):
     val = _to_float(request.json.get("rating", 0))
     if val < 0: val = 0.0
@@ -466,7 +466,7 @@ def handle_single_list(list_id):
     conn.close()
     return jsonify({"meta": dict(list_meta), "items": items})
 
-@app.route("/api/lists/<int:list_id>/entries", methods=["POST", "DELETE"])
+@app.route("/api/lists/<int:list_id>/entries", methods=["GET", "POST", "DELETE"]) 
 def list_entries(list_id):
     conn = get_db(); cat = request.json.get("category"); item_id = request.json.get("item_id")
     if request.method == "POST": conn.execute("INSERT OR IGNORE INTO ListItems (list_id, category, item_id) VALUES (?, ?, ?)", (list_id, cat, item_id))
@@ -478,7 +478,7 @@ def get_tags():
     conn = get_db(); tags = [dict(r) for r in conn.execute("SELECT * FROM Tags ORDER BY name ASC").fetchall()]; conn.close()
     return jsonify(tags)
 
-@app.route("/api/<category>/<int:item_id>/tags", methods=["POST"])
+@app.route("/api/<category>/<int:item_id>/tags", methods=["GET", "POST"])
 def add_tag(category, item_id):
     tag_name = request.json.get("tag_name", "").strip().lower()
     if not tag_name: return jsonify({"error": "Name required"}), 400
@@ -1025,16 +1025,16 @@ def delete_item(category, item_id):
     conn.close()
     return jsonify({"success": True})
 
-@app.route("/api/<category>/<int:item_id>/notes",   methods=["POST"])
+@app.route("/api/<category>/<int:item_id>/notes",   methods=["GET", "POST"])
 def save_notes(category, item_id): return _simple_update(category, item_id, "notes", request.json.get("notes",""))
 
-@app.route("/api/<category>/<int:item_id>/source",  methods=["POST"])
+@app.route("/api/<category>/<int:item_id>/source",  methods=["GET", "POST"])
 def update_source(category, item_id): return _simple_update(category, item_id, "source", request.json.get("source",""))
 
-@app.route("/api/<category>/<int:item_id>/total_episodes", methods=["POST"])
+@app.route("/api/<category>/<int:item_id>/total_episodes", methods=["GET", "POST"])
 def update_total_eps(category, item_id): return _simple_update(category, item_id, "total_episodes" if category != "books" else "total_chapters", _to_int(request.json.get("total_episodes", 0)))
 
-@app.route("/api/<category>/<int:item_id>/runtime", methods=["POST"])
+@app.route("/api/<category>/<int:item_id>/runtime", methods=["GET", "POST"])
 def update_runtime(category, item_id):
     val = _to_int(request.json.get("runtime", 0))
     if category == "books":
