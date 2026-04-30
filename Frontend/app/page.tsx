@@ -13,6 +13,7 @@ interface MediaItem {
   total_tracks?: number; artist?: string; record_label?: string;
   rating?: number;
   custom_tags?: string;
+  origin_country?: string;
 }
 
 interface TrackingCategory {
