@@ -66,7 +66,7 @@ function displayStatus(status: string | undefined, category: string): string {
   return raw;
 }
 
-const API = "http://127.0.0.1:5000/api";
+const API = "https://media-tracker-phgm.onrender.com/api";
 async function apiPost(path: string, body?: object) {
   return fetch(`${API}${path}`, {
     method: "POST",
