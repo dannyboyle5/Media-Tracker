@@ -66,7 +66,7 @@ function displayStatus(status: string | undefined, category: string): string {
   return raw;
 }
 
-const API = "https://media-tracker-phgm.onrender.com";
+const API = "https://media-tracker-phgm.onrender.com/api";
 async function apiPost(path: string, body?: object) {
   return fetch(`${API}${path}`, {
     method: "POST",
