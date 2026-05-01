@@ -217,8 +217,7 @@ def _insert(table, data):
 @app.route("/api/movies", methods=["GET", "POST"])
 def add_movie():
     if request.method == "POST":
-        data = request.get_json(force=True)
-    data = dict(request.json)
+        data = dict(request.get_json(force=True))
     if not data.get("is_manual"):
         tmdb_id = data.get("tmdb_id")
         d = None
@@ -246,8 +245,7 @@ def add_movie():
 @app.route("/api/shows", methods=["GET", "POST"])
 def add_show():
     if request.method == "POST":
-        data = request.get_json(force=True)
-    data = dict(request.json)
+       data = dict(request.get_json(force=True))
     if not data.get("is_manual"):
         tmdb_id = data.get("tmdb_id")
         d = None
@@ -287,8 +285,7 @@ def add_show():
 @app.route("/api/albums", methods=["GET", "POST"])
 def add_album():
     if request.method == "POST":
-        data = request.get_json(force=True)
-    data = dict(request.json)
+        data = dict(request.get_json(force=True))
     raw_title = data.get("title","")
     if data.get("is_manual"): 
         _insert("Staging_Albums", data)
@@ -328,8 +325,7 @@ def add_album():
 @app.route("/api/books", methods=["GET", "POST"])
 def add_book():
     if request.method == "POST":
-        data = request.get_json(force=True)
-    data = dict(request.json)
+        data = dict(request.get_json(force=True))
     if not data.get("is_manual"):
         raw = data.get("title",""); search_title = raw.split(" by ")[0].strip(); items = _gbooks(raw)
         if items:
@@ -391,7 +387,7 @@ def decrement_progress(category, item_id):
 
 @app.route("/api/<category>/<int:item_id>/status", methods=["GET", "POST"])
 def update_status(category, item_id):
-    new_status = request.json.get("status", "Planning"); table = TABLE_MAP.get(category)
+    new_status = (request.get_json(force=True) or {}).get("status", "Planning"); table = TABLE_MAP.get(category)
     if not table: return jsonify({"error": "Invalid category"}), 400
     conn = get_db(); cols_exist = [r[1] for r in conn.execute(f"PRAGMA table_info({table})").fetchall()]
     row = conn.execute(f"SELECT * FROM {table} WHERE rowid = ?", (item_id,)).fetchone()
