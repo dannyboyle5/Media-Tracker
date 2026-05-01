@@ -4,9 +4,6 @@ import sqlite3, os, requests, base64, time, threading, re, urllib.parse
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from dotenv import load_dotenv
-CORS(app, supports_credentials=True, allow_headers=["Content-Type"])
-
-# Load variables from the .env file
 load_dotenv()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -22,6 +19,8 @@ TMDB_HEADERS = {"accept": "application/json", "Authorization": f"Bearer {TMDB_TO
 
 app = Flask(__name__)
 CORS(app)
+
+CORS(app, supports_credentials=True, allow_headers=["Content-Type"])
 
 TABLE_MAP = {
     "movies": "Staging_Movies",
