@@ -53,6 +53,23 @@ interface StatsData {
   dashboard_creator_ratings?: Record<string, { name: string; percent: number }[]>;
 }
 
+async function apiPost(path: string, body?: object) {
+  const response = await fetch(`${API}${path}`, {
+    method: "POST",
+    headers: body ? { "Content-Type": "application/json", "Accept": "application/json" } : {},
+    body: body ? JSON.stringify(body) : undefined,
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error(`Backend Error on ${path} (${response.status}):`, errorText);
+    alert(`Backend error: ${response.status}. Check the F12 Console.`);
+    throw new Error(`API returned ${response.status}`);
+  }
+
+  return response;
+}
+
 function itemId(item: MediaItem): number | null {
   if (item.movie_id != null) return item.movie_id;
   if (item.show_id  != null) return item.show_id;
@@ -251,7 +268,7 @@ export default function Dashboard() {
       return;
     }
     try {
-      await apiPost(`/${activeCategory}`, item);
+      await apiPost(`/${activeCategory}/`, item);
       setSearchQuery(""); setSearchResults([]); fetchList();
     } catch { }
   };
