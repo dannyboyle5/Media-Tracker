@@ -5,6 +5,9 @@ from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from dotenv import load_dotenv
 load_dotenv()
+app = Flask(__name__)
+CORS(app)
+CORS(app, supports_credentials=True, allow_headers=["Content-Type"])
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH  = os.path.join(BASE_DIR, "media_tracker.db")
@@ -15,11 +18,6 @@ SPOTIFY_CLIENT_ID     = os.getenv("SPOTIFY_CLIENT_ID")
 SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
 
 TMDB_HEADERS = {"accept": "application/json", "Authorization": f"Bearer {TMDB_TOKEN.strip()}"}
-
-app = Flask(__name__)
-CORS(app)
-
-CORS(app, supports_credentials=True, allow_headers=["Content-Type"])
 
 TABLE_MAP = {
     "movies": "Staging_Movies",
@@ -218,7 +216,9 @@ def _insert(table, data):
 
 @app.route("/api/movies", methods=["GET", "POST"])
 def add_movie():
-    data = dict(request.json(force=True))
+    if request.method == "POST":
+        data = request.get_json(force=True)
+    data = dict(request.json)
     if not data.get("is_manual"):
         tmdb_id = data.get("tmdb_id")
         d = None
@@ -245,7 +245,9 @@ def add_movie():
 
 @app.route("/api/shows", methods=["GET", "POST"])
 def add_show():
-    data = dict(request.json(force=True))
+    if request.method == "POST":
+        data = request.get_json(force=True)
+    data = dict(request.json)
     if not data.get("is_manual"):
         tmdb_id = data.get("tmdb_id")
         d = None
@@ -284,7 +286,9 @@ def add_show():
 
 @app.route("/api/albums", methods=["GET", "POST"])
 def add_album():
-    data = dict(request.json(force=True))
+    if request.method == "POST":
+        data = request.get_json(force=True)
+    data = dict(request.json)
     raw_title = data.get("title","")
     if data.get("is_manual"): 
         _insert("Staging_Albums", data)
@@ -323,7 +327,9 @@ def add_album():
 
 @app.route("/api/books", methods=["GET", "POST"])
 def add_book():
-    data = dict(request.json(force=True))
+    if request.method == "POST":
+        data = request.get_json(force=True)
+    data = dict(request.json)
     if not data.get("is_manual"):
         raw = data.get("title",""); search_title = raw.split(" by ")[0].strip(); items = _gbooks(raw)
         if items:
