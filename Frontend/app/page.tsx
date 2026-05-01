@@ -258,7 +258,10 @@ export default function Dashboard() {
     alert("Cannot add media: Missing title or metadata from search provider.");
     return;
   }
-  const payload = {
+  setSearchQuery("");
+  setSearchResults([]);
+
+    const payload = {
     title: item.title,
     cover_art_url: item.cover_art_url,
     tmdb_id: item.tmdb_id,
@@ -266,17 +269,14 @@ export default function Dashboard() {
   };
 
   try {
-    console.log(`Sending payload to /${activeCategory}:`, payload);
-    const response = await apiPost(`/${activeCategory}`, payload);
-    setSearchQuery("");
-    setSearchResults([]);
     const response = await apiPost(`/${activeCategory}`, payload);
     if (response && response.ok) {
       fetchList();
+    } else {
+      console.error("Backend rejected the save. Check the F12 Console for details.");
     }
-
-  } catch (error) { 
-    console.error("CRITICAL CRASH in handleAddMedia:", error); 
+  } catch (error) {
+    console.error("CRITICAL CRASH in handleAddMedia:", error);
   }
 };
 
