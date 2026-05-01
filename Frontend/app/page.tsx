@@ -246,6 +246,10 @@ export default function Dashboard() {
 
   const handleAddMedia = async (item: { title: string; cover_art_url?: string; tmdb_id?: number | string }) => {
     if (activeCategory === 'home') return;
+    if (!item.title) {
+      alert("Cannot add media: Missing title or metadata from search provider.");
+      return;
+    }
     try {
       await apiPost(`/${activeCategory}`, item);
       setSearchQuery(""); setSearchResults([]); fetchList();
