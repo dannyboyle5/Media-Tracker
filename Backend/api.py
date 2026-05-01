@@ -4,6 +4,7 @@ import sqlite3, os, requests, base64, time, threading, re, urllib.parse
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from dotenv import load_dotenv
+CORS(app, supports_credentials=True, allow_headers=["Content-Type"])
 
 # Load variables from the .env file
 load_dotenv()
@@ -222,7 +223,7 @@ def _insert(table, data):
 
 @app.route("/api/movies", methods=["GET", "POST"])
 def add_movie():
-    data = dict(request.json)
+    data = dict(request.json(force=True))
     if not data.get("is_manual"):
         tmdb_id = data.get("tmdb_id")
         d = None
@@ -249,7 +250,7 @@ def add_movie():
 
 @app.route("/api/shows", methods=["GET", "POST"])
 def add_show():
-    data = dict(request.json)
+    data = dict(request.json(force=True))
     if not data.get("is_manual"):
         tmdb_id = data.get("tmdb_id")
         d = None
@@ -288,7 +289,7 @@ def add_show():
 
 @app.route("/api/albums", methods=["GET", "POST"])
 def add_album():
-    data = dict(request.json)
+    data = dict(request.json(force=True))
     raw_title = data.get("title","")
     if data.get("is_manual"): 
         _insert("Staging_Albums", data)
@@ -327,7 +328,7 @@ def add_album():
 
 @app.route("/api/books", methods=["GET", "POST"])
 def add_book():
-    data = dict(request.json)
+    data = dict(request.json(force=True))
     if not data.get("is_manual"):
         raw = data.get("title",""); search_title = raw.split(" by ")[0].strip(); items = _gbooks(raw)
         if items:
