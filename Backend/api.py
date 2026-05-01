@@ -9,7 +9,6 @@ load_dotenv()
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH  = os.path.join(BASE_DIR, "media_tracker.db")
 
-# Securely fetch the keys from the environment
 TMDB_TOKEN            = os.getenv("TMDB_TOKEN")
 GOOGLE_BOOKS_KEY      = os.getenv("GOOGLE_BOOKS_KEY")
 SPOTIFY_CLIENT_ID     = os.getenv("SPOTIFY_CLIENT_ID")
@@ -41,7 +40,6 @@ STATUS_MAP = {
     "In Production": "In Production", "Planned": "Not Released Yet", "Pilot": "Pilot",
 }
 
-# Rating removed from INTEGER_COLS so it can safely be cast to Float
 INTEGER_COLS = {
     "runtime_mins", "avg_runtime", "current_episode", "total_episodes",
     "total_chapters", "mins_watched", "page_count", "total_tracks", "is_manual"
@@ -78,13 +76,11 @@ def cn(conn, col, table):
 def ensure_schema():
     conn = sqlite3.connect(DB_PATH)
     
-    # 1. Build the base tables if they do not exist
     conn.execute("CREATE TABLE IF NOT EXISTS Staging_Movies (title TEXT)")
     conn.execute("CREATE TABLE IF NOT EXISTS Staging_Shows (title TEXT)")
     conn.execute("CREATE TABLE IF NOT EXISTS Staging_Albums (title TEXT)")
     conn.execute("CREATE TABLE IF NOT EXISTS Staging_Books (title TEXT)")
 
-    # 2. Add all the extra metadata columns
     def add(table, col, ctype="TEXT"):
         try: conn.execute(f'ALTER TABLE {table} ADD COLUMN "{col}" {ctype}')
         except sqlite3.OperationalError: pass
@@ -779,7 +775,6 @@ def get_stats():
     completed_counts   = {"movies": 0, "shows": 0, "albums": 0, "books": 0}
     era_counts = {"movies": Counter(), "shows": Counter(), "albums": Counter(), "books": Counter()}
     
-    # 10 Buckets: 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0
     rating_dist = {
         "movies": [0]*10, 
         "shows": [0]*10, 
@@ -884,7 +879,6 @@ def get_stats():
         for dec, d in era_ratings_dict.items():
             if d["count"] >= 1:
                 avg_list.append({"decade": dec, "rating": round(d["sum"] / d["count"], 1)})
-        # Chronological sort (e.g., 1980s -> 1990s -> 2000s)
         avg_list.sort(key=lambda x: int(x["decade"][:-1]))
         return avg_list
 
@@ -1143,9 +1137,8 @@ def fix_all_shows_v2():
         "message": f"Started fixing {len(shows)} shows in the background using exact title matching and failsafe math. Please wait ~45 seconds, then refresh your web app!"
     })
 
-# Boot Sequence
-ensure_schema()          # 1. Builds the empty tables for new users
-sync_historical_stats()  # 2. Sets up the 0 hours / 0 pages stats
+ensure_schema()
+sync_historical_stats()
 
 if __name__ == "__main__":
     print("API ready → http://localhost:5000")
