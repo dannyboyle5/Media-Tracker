@@ -63,7 +63,6 @@ async function apiPost(path: string, body?: object) {
   if (!response.ok) {
     const errorText = await response.text();
     console.error(`Backend Error on ${path} (${response.status}):`, errorText);
-    alert(`Backend error: ${response.status}. Check the F12 Console.`);
     throw new Error(`API returned ${response.status}`);
   }
 
