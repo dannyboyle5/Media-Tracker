@@ -492,7 +492,7 @@ export default function Dashboard() {
             {searchResults.length > 0 && (
               <div className="absolute top-full left-0 right-0 mt-2 bg-[#151F2E] border border-[#2A394A] rounded-lg shadow-xl overflow-hidden z-50 max-h-64 overflow-y-auto">
                 {searchResults.map((res: any, idx) => (
-                  <div key={idx} onClick={() => handleAddMedia({ title: res.title, cover_art_url: res.cover_art_url, show_id: res.tmdb_id })}
+                  <div key={idx} onClick={() => handleAddMedia({ title: res.title, cover_art_url: res.cover_art_url, tmdb_id: res.tmdb_id })}
                     className="flex items-center gap-3 p-3 hover:bg-[#3DB4F2]/10 cursor-pointer border-b border-[#2A394A] last:border-0">
                     <div className="w-8 h-12 bg-[#0B1622] rounded overflow-hidden flex-shrink-0">
                       {res.cover_art_url && <img src={res.cover_art_url} className="w-full h-full object-cover" alt="" />}
