@@ -53,6 +53,7 @@ interface StatsData {
   dashboard_creator_ratings?: Record<string, { name: string; percent: number }[]>;
 }
 
+const API = "https://media-tracker-phgm.onrender.com/api";
 async function apiPost(path: string, body?: object) {
   const response = await fetch(`${API}${path}`, {
     method: "POST",
@@ -61,12 +62,15 @@ async function apiPost(path: string, body?: object) {
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
-    console.error(`Backend Error on ${path} (${response.status}):`, errorText);
-    throw new Error(`API returned ${response.status}`);
+    const text = await response.text().catch(() => "Could not read error text");
+    console.error(`=== BACKEND ERROR ON ${path} ===\nStatus: ${response.status}\nDetails: ${text}`);
   }
 
   return response;
+}
+
+async function apiDelete(path: string) {
+  return fetch(`${API}${path}`, { method: "DELETE" });
 }
 
 function itemId(item: MediaItem): number | null {
@@ -80,18 +84,6 @@ function displayStatus(status: string | undefined, category: string): string {
   const raw = status || 'Planning';
   if (category === 'albums' && raw === 'Watched') return 'Listened';
   return raw;
-}
-
-const API = "https://media-tracker-phgm.onrender.com/api";
-async function apiPost(path: string, body?: object) {
-  return fetch(`${API}${path}`, {
-    method: "POST",
-    headers: body ? { "Content-Type": "application/json" } : {},
-    body:    body ? JSON.stringify(body) : undefined,
-  });
-}
-async function apiDelete(path: string) {
-  return fetch(`${API}${path}`, { method: "DELETE" });
 }
 
 // ── ICONS ────────────────────────────────────────────────────────────────────
