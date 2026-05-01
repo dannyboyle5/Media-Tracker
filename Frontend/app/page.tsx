@@ -253,16 +253,33 @@ export default function Dashboard() {
   };
 
   const handleAddMedia = async (item: { title: string; cover_art_url?: string; tmdb_id?: number | string }) => {
-    if (activeCategory === 'home') return;
-    if (!item.title) {
-      alert("Cannot add media: Missing title or metadata from search provider.");
-      return;
-    }
-    try {
-      await apiPost(`/${activeCategory}/`, item);
-      setSearchQuery(""); setSearchResults([]); fetchList();
-    } catch { }
+  if (activeCategory === 'home') return;
+  if (!item.title) {
+    alert("Cannot add media: Missing title or metadata from search provider.");
+    return;
+  }
+  const payload = {
+    title: item.title,
+    cover_art_url: item.cover_art_url,
+    id: item.tmdb_id,
+    status: "Planning"
   };
+
+  try {
+    console.log(`Sending payload to /${activeCategory}/:`, payload);
+    const response = await apiPost(`/${activeCategory}/`, payload);
+    if (response && response.ok) {
+      setSearchQuery(""); 
+      setSearchResults([]); 
+      fetchList();
+    } else {
+      console.error("Backend rejected the save. Check the F12 Console for details.");
+    }
+
+  } catch (error) { 
+    console.error("CRITICAL CRASH in handleAddMedia:", error); 
+  }
+};
 
   const MANUAL_FIELDS: Record<string, { key: string; label: string; type?: string }[]> = {
     movies: [{ key: 'title', label: 'Title' }, { key: 'release_year', label: 'Year' }, { key: 'runtime_mins', label: 'Runtime (mins)', type: 'number' }, { key: 'genre', label: 'Genre' }, { key: 'studio', label: 'Studio / Director' }],
@@ -475,7 +492,7 @@ export default function Dashboard() {
             {searchResults.length > 0 && (
               <div className="absolute top-full left-0 right-0 mt-2 bg-[#151F2E] border border-[#2A394A] rounded-lg shadow-xl overflow-hidden z-50 max-h-64 overflow-y-auto">
                 {searchResults.map((res: any, idx) => (
-                  <div key={idx} onClick={() => handleAddMedia({ title: res.title, cover_art_url: res.cover_art_url, tmdb_id: res.tmdb_id })}
+                  <div key={idx} onClick={() => handleAddMedia({ title: res.title, cover_art_url: res.cover_art_url, show_id: res.tmdb_id })}
                     className="flex items-center gap-3 p-3 hover:bg-[#3DB4F2]/10 cursor-pointer border-b border-[#2A394A] last:border-0">
                     <div className="w-8 h-12 bg-[#0B1622] rounded overflow-hidden flex-shrink-0">
                       {res.cover_art_url && <img src={res.cover_art_url} className="w-full h-full object-cover" alt="" />}
