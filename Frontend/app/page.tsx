@@ -261,19 +261,18 @@ export default function Dashboard() {
   const payload = {
     title: item.title,
     cover_art_url: item.cover_art_url,
-    id: item.tmdb_id,
+    tmdb_id: item.tmdb_id,
     status: "Planning"
   };
 
   try {
-    console.log(`Sending payload to /${activeCategory}/:`, payload);
-    const response = await apiPost(`/${activeCategory}/`, payload);
+    console.log(`Sending payload to /${activeCategory}:`, payload);
+    const response = await apiPost(`/${activeCategory}`, payload);
+    setSearchQuery("");
+    setSearchResults([]);
+    const response = await apiPost(`/${activeCategory}`, payload);
     if (response && response.ok) {
-      setSearchQuery(""); 
-      setSearchResults([]); 
       fetchList();
-    } else {
-      console.error("Backend rejected the save. Check the F12 Console for details.");
     }
 
   } catch (error) { 
