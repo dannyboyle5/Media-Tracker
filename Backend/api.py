@@ -216,7 +216,11 @@ def _insert(table, data):
 
 @app.route("/api/movies", methods=["GET", "POST"])
 def add_movie():
-    if request.method == "POST":
+    if request.method == "GET":
+        conn = get_db()
+        rows = conn.execute("SELECT rowid AS movie_id, * FROM Staging_Movies ORDER BY created_at DESC").fetchall()
+        conn.close()
+        return jsonify([dict(r) for r in rows])
         data = dict(request.get_json(force=True))
     if not data.get("is_manual"):
         tmdb_id = data.get("tmdb_id")
@@ -243,9 +247,14 @@ def add_movie():
     _insert("Staging_Movies", data); return jsonify({"success": True})
 
 @app.route("/api/shows", methods=["GET", "POST"])
+@app.route("/api/shows", methods=["GET", "POST"])
 def add_show():
-    if request.method == "POST":
-       data = dict(request.get_json(force=True))
+    if request.method == "GET":
+        conn = get_db()
+        rows = conn.execute("SELECT rowid AS show_id, * FROM Staging_Shows ORDER BY created_at DESC").fetchall()
+        conn.close()
+        return jsonify([dict(r) for r in rows])
+    data = dict(request.get_json(force=True))
     if not data.get("is_manual"):
         tmdb_id = data.get("tmdb_id")
         d = None
@@ -284,8 +293,12 @@ def add_show():
 
 @app.route("/api/albums", methods=["GET", "POST"])
 def add_album():
-    if request.method == "POST":
-        data = dict(request.get_json(force=True))
+    if request.method == "GET":
+        conn = get_db()
+        rows = conn.execute("SELECT rowid AS id, * FROM Staging_Albums ORDER BY created_at DESC").fetchall()
+        conn.close()
+        return jsonify([dict(r) for r in rows])
+    data = dict(request.get_json(force=True))
     raw_title = data.get("title","")
     if data.get("is_manual"): 
         _insert("Staging_Albums", data)
@@ -324,8 +337,12 @@ def add_album():
 
 @app.route("/api/books", methods=["GET", "POST"])
 def add_book():
-    if request.method == "POST":
-        data = dict(request.get_json(force=True))
+    if request.method == "GET":
+        conn = get_db()
+        rows = conn.execute("SELECT rowid AS id, * FROM Staging_Books ORDER BY created_at DESC").fetchall()
+        conn.close()
+        return jsonify([dict(r) for r in rows])
+    data = dict(request.get_json(force=True))
     if not data.get("is_manual"):
         raw = data.get("title",""); search_title = raw.split(" by ")[0].strip(); items = _gbooks(raw)
         if items:
